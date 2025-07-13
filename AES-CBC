@@ -1,0 +1,32 @@
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+
+def decrypt_aes_cbc(file_path, key, iv):
+    with open(file_path, 'rb') as f:
+        encrypted_data = f.read()
+
+    cipher = Cipher(
+        algorithms.AES(key),
+        modes.CBC(iv),
+        backend=default_backend()
+    )
+    decryptor = cipher.decryptor()
+    decrypted_padded = decryptor.update(encrypted_data) + decryptor.finalize()
+
+    unpadder = padding.PKCS7(128).unpadder()
+    decrypted = unpadder.update(decrypted_padded) + unpadder.finalize()
+
+    return decrypted.decode('utf-8', errors='ignore')
+
+if __name__ == "__main__":
+    input_file = "C:\\the\path\for\encrypted\file.enc"#في حال كان الملف نفسه متشفر 
+    key_text = "m4yb3w3d0nt3x1st"          # مفتاح نصي (16 بايت)
+    iv_text = "l1f31sf0rl1v1ng!"           # IV نصي (16 بايت)
+
+    key = key_text.encode()
+    iv = iv_text.encode()
+
+    decrypted_text = decrypt_aes_cbc(input_file, key, iv)
+    print("Decrypted Text:")
+    print(decrypted_text)
